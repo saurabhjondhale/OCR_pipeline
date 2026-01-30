@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OCR Pipeline</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>PDF OCR Pipeline</h2>
+
+        <form action="/process" method="POST" enctype="multipart/form-data">
+
+            <label>Upload PDF:</label>
+            <input type="file" name="pdf" required>
+
+            <label>Select Task:</label>
+            <select name="task">
+                <option value="ocr">Convert to OCR PDF</option>
+                <option value="text">Extract Text from PDF</option>
+                <option value="full">Full Pipeline (OCR + Extract)</option>
+            </select>
+
+            <button type="submit">Process</button>
+        </form>
+    </div>
+</body>
+</html>

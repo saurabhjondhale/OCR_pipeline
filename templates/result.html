@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Results</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Processing Complete</h2>
+
+        {% if ocr_path %}
+        <p><strong>OCR PDF:</strong></p>
+        <a href="/download?file={{ ocr_path }}">Download OCR Version</a>
+        <br><br>
+        {% endif %}
+
+        {% if text_path %}
+        <p><strong>Extracted Text:</strong></p>
+        <a href="/download?file={{ text_path }}">Download Extracted Text</a>
+        <br><br>
+        {% endif %}
+
+        <a href="/">Go Back</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,34 @@
+body {
+    background: #f4f4f4;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    width: 460px;
+    background: white;
+    padding: 25px 30px;
+    margin: 5% auto;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #ccc;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.85;
+}

@@ -1,0 +1,7 @@
+flask
+ocrmypdf
+pytesseract
+pdf2image
+PyPDF2
+pillow
+gunicorn
