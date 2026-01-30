@@ -150,3 +150,13 @@ Thumbs.db
 uploads/
 outputs/
 *.pdf
+
+# FastAPI file uploads
+uploads/
+outputs/
+
+# Ruff cache
+.ruff_cache/
+
+# Temporary files
+tmp/

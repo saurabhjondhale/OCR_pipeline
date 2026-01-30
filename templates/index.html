@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR Pipeline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .upload-section {
+            margin-bottom: 30px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #667eea;
+        }
+
+        .upload-label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            display: none;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 15px 20px;
+            background: #667eea;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .file-input-label:hover {
+            background: #764ba2;
+        }
+
+        .file-name {
+            margin-top: 10px;
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .task-options {
+            margin: 20px 0;
+        }
+
+        .task-options label {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .task-options input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .process-btn {
+            width: 100%;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+
+        .process-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .process-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .results {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .result-section {
+            margin-bottom: 25px;
+        }
+
+        .result-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-title::before {
+            content: '✓';
+            color: #28a745;
+            font-size: 1.3em;
+        }
+
+        .text-output {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+            width: 100%;
+            min-height: 500px;
+            max-height: 700px;
+            overflow-y: auto;
+            color: #333;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            resize: vertical;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .download-btn {
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .download-btn:hover {
+            background: #218838;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .download-buttons {
+                flex-direction: column;
+            }
+
+            .download-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 OCR Pipeline</h1>
+            <p>Upload your PDF and extract text with OCR</p>
+        </div>
+
+        <form id="uploadForm">
+            <div class="upload-section">
+                <label class="upload-label">Select PDF File</label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="pdfFile" accept=".pdf, .jpg, .jpeg, .png, .gif, .bmp, .tiff, image/*"
+                        required>
+                    <label for="pdfFile" class="file-input-label">
+                        Click to upload PDF or Image or drag and drop
+                    </label>
+                    <div class="file-name" id="fileName"></div>
+                </div>
+
+                <div class="task-options">
+                    <label>
+                        <input type="radio" name="task" value="text" checked>
+                        Extract Text Only
+                    </label>
+                    <label>
+                        <input type="radio" name="task" value="ocr">
+                        OCR PDF (Image-based to Searchable)
+                    </label>
+                    <label>
+                        <input type="radio" name="task" value="full">
+                        Full Process (OCR + Text Extraction)
+                    </label>
+                </div>
+
+                <button type="submit" class="process-btn" id="processBtn">Process Upload</button>
+            </div>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px; color: #666;">Processing your PDF...</p>
+        </div>
+
+        <div class="error" id="error"></div>
+        <div class="success" id="success"></div>
+
+        <div class="results" id="results">
+            <div class="result-section" id="ocrSection" style="display: none;">
+                <div class="result-title">OCR PDF Generated</div>
+                <div class="download-buttons">
+                    <button class="download-btn" onclick="downloadFile(resultData.ocr_path, 'ocr')">
+                        📥 Download OCR PDF
+                    </button>
+                </div>
+            </div>
+
+            <div class="result-section" id="textSection" style="display: none;">
+                <div class="result-title">Extracted Text</div>
+                <textarea class="text-output" id="textOutput" readonly></textarea>
+                <div class="download-buttons">
+                    <button class="download-btn" onclick="downloadFile(resultData.text_path, 'text')">
+                        📥 Download as Text
+                    </button>
+                    <button class="download-btn" style="background: #007bff;" onclick="copyToClipboard()">
+                        📋 Copy to Clipboard
+                    </button>
+                    <button class="download-btn" style="background: #dc3545;" onclick="clearText()">
+                        🗑️ Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let resultData = null;
+
+        // File input handling
+        const fileInput = document.getElementById('pdfFile');
+        const fileInputLabel = document.querySelector('.file-input-label');
+        const fileName = document.getElementById('fileName');
+
+        fileInput.addEventListener('change', function () {
+            if (this.files.length > 0) {
+                fileName.textContent = '✓ ' + this.files[0].name;
+                fileName.style.color = '#28a745';
+            }
+        });
+
+        // Drag and drop
+        fileInputLabel.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileInputLabel.style.background = '#764ba2';
+        });
+
+        fileInputLabel.addEventListener('dragleave', () => {
+            fileInputLabel.style.background = '#667eea';
+        });
+
+        fileInputLabel.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileInputLabel.style.background = '#667eea';
+            fileInput.files = e.dataTransfer.files;
+            if (fileInput.files.length > 0) {
+                fileName.textContent = '✓ ' + fileInput.files[0].name;
+                fileName.style.color = '#28a745';
+            }
+        });
+
+        // Form submission
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('pdf', fileInput.files[0]);
+            formData.append('task', document.querySelector('input[name="task"]:checked').value);
+
+            const processBtn = document.getElementById('processBtn');
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const success = document.getElementById('success');
+            const results = document.getElementById('results');
+
+            error.style.display = 'none';
+            success.style.display = 'none';
+            results.style.display = 'none';
+
+            processBtn.disabled = true;
+            loading.style.display = 'block';
+
+            try {
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Processing failed');
+                }
+
+                resultData = await response.json();
+
+                loading.style.display = 'none';
+                results.style.display = 'block';
+
+                // Show OCR results if available
+                if (resultData.ocr_path) {
+                    document.getElementById('ocrSection').style.display = 'block';
+                } else {
+                    document.getElementById('ocrSection').style.display = 'none';
+                }
+
+                // Show text extraction results if available
+                if (resultData.extracted_text) {
+                    document.getElementById('textSection').style.display = 'block';
+                    document.getElementById('textOutput').value = resultData.extracted_text;
+                } else {
+                    document.getElementById('textSection').style.display = 'none';
+                }
+
+                success.textContent = '✓ Processing completed successfully!';
+                success.style.display = 'block';
+            } catch (err) {
+                loading.style.display = 'none';
+                error.textContent = '✗ Error: ' + err.message;
+                error.style.display = 'block';
+            } finally {
+                processBtn.disabled = false;
+            }
+        });
+
+        function downloadFile(filePath, type) {
+            if (!filePath) {
+                alert('File not available');
+                return;
+            }
+            window.location.href = `/download?file=${encodeURIComponent(filePath)}`;
+        }
+
+        function copyToClipboard() {
+            const textOutput = document.getElementById('textOutput');
+            textOutput.select();
+            document.execCommand('copy');
+            alert('Text copied to clipboard!');
+        }
+
+        function clearText() {
+            const textOutput = document.getElementById('textOutput');
+            textOutput.value = '';
+            const results = document.getElementById('results');
+            results.style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>
