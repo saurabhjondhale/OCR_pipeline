@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "ocr-pipeline"
+version = "0.1.0"
+description = "OCR Pipeline for PDF processing and text extraction"
+authors = ["Saurabh J."]
+readme = "Readme.md"
+packages = [{ include = "ocr" }]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+ocrmypdf = "^17.0.1"
+pytesseract = "^0.3.13"
+pdf2image = "^1.17.0"
+pypdf2 = "^3.0.1"
+pillow = "^12.1.0"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.14.14"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
