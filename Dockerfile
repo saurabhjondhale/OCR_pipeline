@@ -27,4 +27,4 @@ RUN poetry install --no-interaction --no-ansi --no-cache
 EXPOSE 8000
 
 # Run the FastAPI app with Uvicorn
-CMD ["poetry", "run", "uvicorn", "app:app", "--host", "localhost", "--port", "8000"]
+CMD ["poetry", "run", "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
